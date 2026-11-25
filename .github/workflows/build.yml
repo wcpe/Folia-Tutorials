@@ -45,11 +45,11 @@ jobs:
 #       run: sudo docker run --rm -v ${{ github.workspace }}/pdf:/app/pdf iseason/docusaurus-to-pdf -u https://neige7.github.io/Banker-Wiki/en/intro --output pdf/Banker-Wiki-English.pdf
     # 上传PDF
     - name: Capture Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/cache/save@v4
       with:
-        name: Artifacts
+        key: Artifacts-${{ github.run_id }}-${{ github.run_attempt }}
         path: pdf/
-        if-no-files-found: error
+
   # Release
   release:
     needs: [ pdf ]
@@ -60,10 +60,11 @@ jobs:
       uses: actions/checkout@v2
     # 下载本体
     - name: Download Content
-      uses: actions/download-artifact@v2
+      uses: actions/cache/restore@v4
       with:
-        name: Artifacts
-    # 获取序号
+        key: Artifacts-${{ github.run_id }}-${{ github.run_attempt }}
+        fail-on-cache-miss: true
+
     - name: Get Project version
       id: get_version
       run: |
