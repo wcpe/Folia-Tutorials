@@ -43,28 +43,8 @@ jobs:
     # 生成英文PDF
 #     - name: Build English PDF
 #       run: sudo docker run --rm -v ${{ github.workspace }}/pdf:/app/pdf iseason/docusaurus-to-pdf -u https://neige7.github.io/Banker-Wiki/en/intro --output pdf/Banker-Wiki-English.pdf
-    # 上传PDF
-    - name: Capture Build Artifacts
-      uses: actions/cache/save@v4
-      with:
-        key: Artifacts-${{ github.run_id }}-${{ github.run_attempt }}
-        path: pdf/
-
-  # Release
-  release:
-    needs: [ pdf ]
-    runs-on: ubuntu-latest
-    steps:
-    # 拉取代码
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-    # 下载本体
-    - name: Download Content
-      uses: actions/cache/restore@v4
-      with:
-        key: Artifacts-${{ github.run_id }}-${{ github.run_attempt }}
-        fail-on-cache-miss: true
-
+    # Release：pdf 与 release 合并为同一 job，PDF 走本 job 工作区
+    # （同 run 跨 job cache 传递实测不可靠，产物不越 job 边界）。
     - name: Get Project version
       id: get_version
       run: |
